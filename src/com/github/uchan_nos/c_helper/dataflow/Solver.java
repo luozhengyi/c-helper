@@ -6,7 +6,7 @@ import java.util.Set;
 import com.github.uchan_nos.c_helper.analysis.IGraph;
 
 /**
- * データフロー解析を行うクラス.
+ * 用于数据流分析的类.
  * @author uchan
  */
 public abstract class Solver<Vertex, Value> {
@@ -14,8 +14,8 @@ public abstract class Solver<Vertex, Value> {
     private final Vertex entryVertex;
 
     /**
-     * 解析の結果.
-     * 内部的には解析の途中経過の記憶にも使う.
+     * 分析结果.
+     * 在内部，它也被用来存储分析的进展.
      */
     public static class Result<Vertex, Value> {
         public final Map<Vertex, EntryExitPair<Value>> analysisValue;
@@ -39,40 +39,40 @@ public abstract class Solver<Vertex, Value> {
     }
 
     /**
-     * データフロー解析を行い、結果を返す.
+     * 执行数据流分析并返回结果.
      */
     public abstract Result<Vertex, Value> solve();
 
     /**
-     * 解析の初期情報を返す.
-     * 前進解析ではフローグラフの入口ノードの入口値、
-     * 後進解析ではフローグラフの出口ノードの出口値となる.
+     * 返回用于分析的初始值.
+     * 在前向分析中，流动图的入口节点的入口值、
+     * 在后向分析中，它是流动图的出口节点的出口值.
      */
     protected abstract Set<Value> getInitValue();
 
     /**
-     * 解析値を格納する集合の初期値を新しく作って返す.
-     * 前進解析における入口ノードの入口値や
-     * 後進解析における出口ノードの出口値以外の集合の初期値.
+     * 为存储分析值的集合建立并返回一个新的初始值.
+     * 正向分析中入口节点的入口值和
+     * 后向分析中出口节点的非出口值集合的初始值.
      */
     protected abstract Set<Value> createDefaultSet();
 
     /**
-     * 指定された頂点における遷移関数.
-     * 前進解析では入口値を基に出口値を計算する.
-     * @return result が変更されたら true
+     * 某一顶点的transfer函数.
+     * 前向分析，根据入口值计算出口值.
+     * @return result 发生改变则返回 true
      */
     protected abstract boolean transfer(Vertex v, Set<Value> entry, Set<Value> result);
 
     /**
-     * join演算子.
-     * result に set を加える.
-     * @return result が変更されたら true
+     * join运算符(执行并集操作).
+     * 将set添加到result中.
+     * @return result 发生改变则返回 true
      */
     protected abstract boolean join(Set<Value> result, Set<Value> set);
 
     /**
-     * 集合のコピー.
+     * 复制一个集合.
      */
     protected abstract Set<Value> clone(Set<Value> set);
 }

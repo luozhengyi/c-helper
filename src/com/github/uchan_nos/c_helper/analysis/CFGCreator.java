@@ -23,14 +23,14 @@ public class CFGCreator {
         Map<String, CFG> procToCFG =
                 new HashMap<String, CFG>();
 
-        // 翻訳単位に含まれるすべての宣言を取得する
+        // 获取翻译单元中包含的所有声明
         IASTDeclaration[] declarations = translationUnit.getDeclarations();
 
-        // 上から順番に処理する
+        // 按照从上到下的顺序处理。
         for (int i = 0; i < declarations.length; ++i) {
             IASTDeclaration decl = declarations[i];
 
-            // 宣言が関数定義ならばCFGを生成し、procToCFGへ登録する
+            // 如果声明是一个函数定义，则生成一个CFG并将其注册到procToCFG。
             if (decl instanceof IASTFunctionDefinition) {
                 IASTFunctionDefinition fd = (IASTFunctionDefinition) decl;
                 String id = String.valueOf(

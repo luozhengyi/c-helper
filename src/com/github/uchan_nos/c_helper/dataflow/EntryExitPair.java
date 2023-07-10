@@ -3,7 +3,7 @@ package com.github.uchan_nos.c_helper.dataflow;
 import java.util.Set;
 
 /**
- * 各頂点における入口値と出口値を表す.
+ * 在每个顶点表达入口值和出口值.
  */
 public class EntryExitPair<Value> {
     private Set<Value> entry;

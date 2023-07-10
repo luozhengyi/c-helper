@@ -6,15 +6,15 @@ import java.util.Collection;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 
 /**
- * 指定された条件でASTの要素をフィルタするクラス.
+ * 根据指定条件过滤AST元素的类。
  * @author uchan
  */
 public class ASTFilter {
     public interface Predicate {
         /**
-         * フィルタを通過するかどうかを表す値を返す.
-         * @param node ASTノード
-         * @return フィルタを通過させるならtrue
+         * 返回值表示过滤器是否通过.
+         * @param node AST结点
+         * @return 如果通过过滤器，则为true.
          */
         boolean pass(IASTNode node);
     }
@@ -22,7 +22,7 @@ public class ASTFilter {
     private IASTNode ast;
 
     /**
-     * 指定されたASTを対象としたフィルタを生成.
+     * 为指定的AST生成过滤器.
      * @param ast
      */
     public ASTFilter(IASTNode ast) {
@@ -32,10 +32,10 @@ public class ASTFilter {
     /**
      * 指定された述語によりフィルタリングを行う.
      * @param pred フィルタを通過させたい要素のみ pass() == true となる述語
-     * @return フィルタに通過した要素の集合
+     * @return 通过过滤器的元素集合.
      */
     public Collection<IASTNode> filter(Predicate pred) {
-      class Visitor extends AllASTVisitor {
+        class Visitor extends AllASTVisitor {
             private ArrayList<IASTNode> filteredNodes;
             private Predicate filterPred;
             public Visitor(Predicate pred) {

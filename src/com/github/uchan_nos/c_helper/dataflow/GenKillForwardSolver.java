@@ -14,26 +14,26 @@ public abstract class GenKillForwardSolver<Vertex, Value> extends ForwardSolver<
     private Map<Vertex, GenKill<Value>> genkill = null;
 
     /**
-     * データフロー解析を行い、結果を返す.
+     * 执行数据流分析并返回结果.
      */
     @Override
     public Result<Vertex, Value> solve() {
-        // gen/kill集合を生成
+        // 生成gen/kill集合
         this.genkill = new HashMap<Vertex, GenKill<Value>>();
         for (Vertex v : getCFG().getVertices()) {
             genkill.put(v, getGenKill(v));
         }
 
-        // 解析実行
+        // 执行分析
         Result<Vertex, Value> result = super.solve();
 
-        // 後片付け
+        // 整理
         this.genkill = null;
         return result;
     }
 
     /**
-     * 遷移関数.
+     * transfer.
      */
     protected boolean transfer(Vertex v, Set<Value> entry, Set<Value> result) {
         Set<Value> oldResult = clone(result);
@@ -47,7 +47,7 @@ public abstract class GenKillForwardSolver<Vertex, Value> extends ForwardSolver<
     }
 
     /**
-     * 指定した頂点に対応するgen/kill集合を得る.
+     * 获取指定顶点的gen/kill集合.
      */
     protected abstract GenKill<Value> getGenKill(Vertex v);
 }

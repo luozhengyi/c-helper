@@ -103,22 +103,22 @@ public class CFG extends DirectedGraph<CFG.Vertex> {
     }
 
     /**
-     * 指定されたグラフ全体をこのグラフに追加する.
-     * グラフcfgのすべての頂点と辺を、グラフthisへ追加する.
-     * グラフcfgの入口ノードと出口ノードは無視されるため、ユーザーの側で対処する必要がある.
+     * 将整个指定的图形添加到这个图形中.
+     * 图形cfg的所有顶点和边都被添加到这个图形中.
+     * 图形cfg的入口和出口节点被忽略，必须由用户来处理.
      *
-     * @param cfg 追加するグラフ
+     * @param cfg 要添加的图形
      */
     public void add(CFG cfg) {
         if (cfg != null) {
             Set<Vertex> vs = cfg.getVertices();
 
-            // 頂点を追加
+            // 添加顶点
             add(vs);
             add(cfg.entryVertex());
             add(cfg.exitVertex());
 
-            // 辺を追加
+            // 添加边
             for (Vertex v : vs) {
                 for (Vertex to : cfg.getConnectedVerticesFrom(v)) {
                     connect(v, to);
@@ -134,14 +134,14 @@ public class CFG extends DirectedGraph<CFG.Vertex> {
     }
 
     /**
-     * 指定されたグラフ全体をこのグラフに追加し、追加したグラフとこのグラフを接続する.
-     * グラフcfgのすべての頂点と辺を、グラフthisへ追加する.
-     * connectFromからcfg.entryVertex()へ、
-     * cfg.exitVertex()からconnectToへの辺をそれぞれ生成しグラフthisへ追加する.
+     * 将整个指定的图形添加到这个图形中，并将添加的图形连接到这个图形.
+     * 将图形cfg的所有顶点和边添加到该图形中.
+     * connectFrom到cfg.enterVertex()、
+     * 从cfg.exitVertex()到connectTo生成边，并将它们添加到图形中.
      *
-     * @param cfg 追加するグラフ
-     * @param connectFrom 追加したグラフの入口ノードへ接続する本体側グラフのノード
-     * @param connectTo 追加したグラフの出口ノードから接続される本体側グラフのノード
+     * @param cfg 要添加的图形
+     * @param connectFrom 连接到所添加图形的入口节点的主体图形的节点
+     * @param connectTo 从添加的图形的出口节点连接的主体图形的节点
      */
     public void add(CFG cfg, Vertex connectFrom, Vertex connectTo) {
         add(cfg);

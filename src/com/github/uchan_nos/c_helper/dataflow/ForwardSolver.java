@@ -16,14 +16,14 @@ public abstract class ForwardSolver<Vertex, Value> extends Solver<Vertex, Value>
     }
 
     /**
-     * データフロー解析を行い、結果を返す.
+     * 执行数据流分析并返回结果.
      */
     @Override
     public Result<Vertex, Value> solve() {
         Map<Vertex, EntryExitPair<Value>> analysisValue =
             new HashMap<Vertex, EntryExitPair<Value>>();
 
-        // 集合を初期化する
+        // 初始化集合
         for (Vertex v : getCFG().getVertices()) {
             analysisValue.put(v, new EntryExitPair<Value>(
                         v.equals(getEntryVertex()) ? getInitValue() : createDefaultSet(), // entry
@@ -31,7 +31,7 @@ public abstract class ForwardSolver<Vertex, Value> extends Solver<Vertex, Value>
                         ));
         }
 
-        // forward 解析する
+        // forward 分析
         solveForward(analysisValue);
         return new Result<Vertex, Value>(analysisValue);
     }
@@ -54,18 +54,18 @@ public abstract class ForwardSolver<Vertex, Value> extends Solver<Vertex, Value>
                     remainVertices.add(nextVisit);
                 }
 
-                // 頂点 v の解析値を取得
+                // 获取顶点V的分析值
                 final EntryExitPair<Value> vInfo = analysisValue.get(v);
 
-                // 頂点 v の入口値の計算
-                // 頂点 v に接続している各頂点の出口値をjoinする
+                // 頂点 v 的入口值计算
+                // 頂点 v 的入口值是由其前驱的出口值join计算出来的
                 for (Vertex prevVertex : getCFG().getConnectedVerticesTo(v)) {
                     final Set<Value> exitSet = analysisValue.get(prevVertex).exit();
                     modified |= join(vInfo.entry(), exitSet);
                 }
 
-                // 頂点 v の出口値の計算
-                // 頂点 v の入口値を基に、遷移関数で出口値を計算する
+                // 頂点 v 的出口值
+                // 頂点 v 的入口值和出口值是由transfer()函数计算的
                 modified |= transfer(v, vInfo.entry(), vInfo.exit());
             }
         } while (modified);

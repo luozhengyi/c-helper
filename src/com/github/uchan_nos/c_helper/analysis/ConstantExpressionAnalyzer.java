@@ -12,7 +12,7 @@ import com.github.uchan_nos.c_helper.analysis.values.IntegralValue;
 import com.github.uchan_nos.c_helper.analysis.values.Value;
 
 /**
- * 与えられた式が定数値を持つか否かを判定する機能を提供する.
+ * 提供判断给定表达式是否具有常量值的功能.
  * @author uchan
  */
 public class ConstantExpressionAnalyzer {
@@ -23,7 +23,7 @@ public class ConstantExpressionAnalyzer {
         private Value value;
 
         /**
-         * 指定された値をもつ定数値を表す情報を生成.
+         * 生成代表具有指定值的常量的信息.
          * @param value 定数値
          */
         public Info(Value value) {
@@ -34,8 +34,8 @@ public class ConstantExpressionAnalyzer {
         }
 
         /**
-         * 指定された原因により未定義になったことを表す情報を生成.
-         * @param message 未定義になってしまった原因
+         * 生成信息，表明由于指定原因导致未定义.
+         * @param message 未定义的原因
          */
         public Info(String message) {
             this.isConstant = false;
@@ -45,7 +45,7 @@ public class ConstantExpressionAnalyzer {
         }
 
         /**
-         * 定数ではないことを表す情報を生成.
+         * 生成信息，表明它不是常数.
          */
         public Info() {
             this.isConstant = false;
@@ -97,7 +97,8 @@ public class ConstantExpressionAnalyzer {
             @Override
             public int visit(IASTExpression expression) {
                 if (expression instanceof IASTCastExpression) {
-                    ((IASTCastExpression) expression).getOperand().accept(this);
+                    // recursively
+                    ((IASTCastExpression) expression).getOperand().accept(this); // equivalent to stripCast()
                 } else if (expression instanceof IASTLiteralExpression) {
                     literalExpression = (IASTLiteralExpression) expression;
                 }
@@ -107,8 +108,8 @@ public class ConstantExpressionAnalyzer {
 
         if (expression instanceof IASTBinaryExpression) {
             IASTBinaryExpression be = (IASTBinaryExpression) expression;
-            Value lhs = eval(be.getOperand1());
-            Value rhs = eval(be.getOperand2());
+            Value lhs = eval(be.getOperand1()); // recursively
+            Value rhs = eval(be.getOperand2()); // recursively
             if (lhs != null && rhs != null) {
                 if (lhs instanceof IntegralValue && rhs instanceof IntegralValue) {
                     IntegralValue lhs_ = (IntegralValue) lhs;
@@ -117,6 +118,7 @@ public class ConstantExpressionAnalyzer {
                 }
             }
         }
+        // unaryExpression/constantExpression
         SearchLiteralVisitor searchLiteral = new SearchLiteralVisitor();
         expression.accept(searchLiteral);
         IASTLiteralExpression literalExpression = searchLiteral.literalExpression();

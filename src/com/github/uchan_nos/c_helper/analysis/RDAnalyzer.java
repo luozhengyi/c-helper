@@ -36,11 +36,11 @@ import org.eclipse.core.runtime.CoreException;
 import com.github.uchan_nos.c_helper.util.Util;
 
 /**
- * 到達定義解析を行うクラス.
+ * 执行到达定值分析的类.
  * @author uchan
  */
 public class RDAnalyzer {
-    // gen, kill集合を保持する構造体
+    // 保存gen, kill集合的类
     private static class GenKill {
         final public BitSet gen;
         final public BitSet kill;
@@ -50,15 +50,20 @@ public class RDAnalyzer {
         }
     }
 
-    private CFG cfg; // 解析すべきソースのフローグラフ
-    private ArrayList<AssignExpression> assignList; // cfgに含まれる代入文のリスト（DummyAssignExpressionを含む）
-    private Set<IASTIdExpression> idExpressionList; // cfgに含まれるID式のリスト
-    private ArrayList<DummyAssignExpression> dummyAssignList; // cfgに含まれるダミー変数定義のリスト
+    private CFG cfg; // 待分析的cfg
+    private ArrayList<AssignExpression> assignList; // cfg中的赋值语句列表（包含DummyAssignExpression）
+    private Set<IASTIdExpression> idExpressionList; // cfg中的ID表达式列表
+    /**
+     * collect all variable reference,
+     * the dummyAssignList is used to find "undefied variable".
+     * 如果 DummyAssignExpression 流到了非 start node, 说明就使用了未定义的变量.
+     */
+    private ArrayList<DummyAssignExpression> dummyAssignList; // cfg中虚拟变量定义的列表
 
     /**
-     * 到達定義実行器を生成する.
-     * @param cfg 解析するソースコードの制御フローグラフ
-     * @param assignList ソースコード中の代入文のリスト
+     * 到达定值的执行器.
+     * @param cfg 要分析的源代码的cfg
+     * @param assignList 源代码中的赋值语句列表
      */
     public RDAnalyzer(IASTTranslationUnit ast, CFG cfg) {
         this.cfg = cfg;
@@ -69,21 +74,21 @@ public class RDAnalyzer {
     }
 
     public RD<CFG.Vertex> analyze() {
-        // フローグラフ中の頂点数
+        // cfg中的顶点数量
         final int numVertex = cfg.getVertices().size();
 
         ArrayList<CFG.Vertex> vertices = new ArrayList<CFG.Vertex>(Util.sort(cfg.getVertices()));
 
-        // 各頂点に対応するgen, killを生成
+        // 每个顶点的的gen, kill
         ArrayList<GenKill> genkill = new ArrayList<RDAnalyzer.GenKill>(numVertex);
         for (int i = 0; i < numVertex; ++i) {
             genkill.add(createGenKill(vertices.get(i)));
         }
 
-        // 各頂点の入口と出口の到達定義集合
+        // 到达定值的每个顶点的出口入口集合
         ArrayList<BitSet> entry = new ArrayList<BitSet>(numVertex);
         ArrayList<BitSet> exit = new ArrayList<BitSet>(numVertex);
-        // exitに変更が加わったか調べるために過去の値を保存しておく
+        // 存储历史值，以检查是否对EXIT进行了修改.
         ArrayList<BitSet> exitPrev = new ArrayList<BitSet>(numVertex);
         for (int i = 0; i < numVertex; ++i) {
             entry.add(new BitSet(assignList.size()));
@@ -152,7 +157,7 @@ public class RDAnalyzer {
     }
 
     /**
-     * 指定された頂点のgen, kill集合を生成する.
+     * 为指定的顶点生成gen, kill集合.
      * @param v gen, kill集合を生成したい頂点
      * @return gen, kill集合
      */
@@ -167,7 +172,7 @@ public class RDAnalyzer {
         return result;
     }
 
-    // 指定されたASTノードのgen, kill集合を生成する.
+    // 为指定的AST结点生成gen, kill集合.
     private GenKill createGenKill(IASTNode ast) {
         if (ast instanceof IASTExpressionStatement) {
             return createGenKill((IASTExpressionStatement)ast);
@@ -178,7 +183,7 @@ public class RDAnalyzer {
     }
 
     private GenKill createGenKill(IASTExpressionStatement ast) {
-        // 代入に対応したgen, kill
+        // 与赋值语句对应的gen, kill
         AssignExpression assign = getAssignExpressionOfNode(ast.getExpression());
         ArrayList<AssignExpression> killedAssigns = null;
 
@@ -236,11 +241,11 @@ public class RDAnalyzer {
     }
 
     /**
-     * 指定されたASTノードに対応する変数定義を取得する.
-     * 指定するASTノードは初期化付き変数定義のIASTDeclaratorか
-     * 代入文のIASTBinaryExpressionに対応している.
+     * 获取对应于指定AST节点的变量定义.
+     * 指定的AST节点对应于"初始化的变量定义中的IASTDeclarator"或
+     * "赋值语句中的IASTBinaryExpression".
      * @param ast
-     * @return
+     * @return 不可能返回 DummyAssignExpression
      */
     private AssignExpression getAssignExpressionOfNode(IASTNode ast) {
         for (int i = 0; i < assignList.size(); ++i) {
@@ -252,9 +257,9 @@ public class RDAnalyzer {
     }
 
     /**
-     * 指定された名前を左辺値として持つ変数定義の一覧を取得する.
-     * @param name 抽出する名前
-     * @return 抽出された変数定義一覧
+     * 获得一个以指定名称为左边值的变量定义列表.
+     * @param name 要提取的名称
+     * @return 提取的变量定义的清单
      */
     private ArrayList<AssignExpression> getAssignExpressionsOfName(IASTName name) {
         ArrayList<AssignExpression> result = new ArrayList<AssignExpression>();
@@ -262,14 +267,18 @@ public class RDAnalyzer {
 
         for (int i = 0; i < assignList.size(); ++i) {
             IASTNode lhs = assignList.get(i).getLHS();
-            if (lhs instanceof IASTName) {
+            if (lhs instanceof IASTName) { // 变量定义
                 IASTName n = (IASTName)lhs;
                 if (n.resolveBinding().equals(nameBinding)) {
                     result.add(assignList.get(i));
                 }
-            } else if (lhs instanceof IASTIdExpression) {
+            } else if (lhs instanceof IASTIdExpression) { // 变量引用 或者 DummyAssign
                 IASTIdExpression e = (IASTIdExpression)lhs;
                 if (e.getName().resolveBinding().equals(nameBinding)) {
+                    result.add(assignList.get(i));
+                }  else if(e.getName().resolveBinding() instanceof ProblemBinding
+                        && nameBinding instanceof ProblemBinding
+                        && e.getName().toString().equals(name.toString())) { // handle undefined variable
                     result.add(assignList.get(i));
                 }
             }
@@ -312,7 +321,7 @@ public class RDAnalyzer {
                     IASTSimpleDeclaration d = (IASTSimpleDeclaration)declaration;
                     for (IASTDeclarator decl : d.getDeclarators()) {
                         if (decl.getInitializer() != null) {
-                            // 初期化付き変数宣言
+                            // 带初始化的变量声明
                             result.add(new AssignExpression(id, decl));
                             id++;
                         }
@@ -328,7 +337,7 @@ public class RDAnalyzer {
         final Set<IASTIdExpression> result = new TreeSet<IASTIdExpression>(new Comparator<IASTIdExpression>() {
             @Override
             public int compare(IASTIdExpression o1, IASTIdExpression o2) {
-                return o1.getName().toString().compareTo(o2.getName().toString());
+                return o1.getName().toString().compareTo(o2.getName().toString()); // 同一个变量在不同位置获取到的ast对象内存地址是不一样的
             }
         });
         ast.accept(new ASTVisitor(true) {

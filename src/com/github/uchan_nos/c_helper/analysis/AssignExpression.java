@@ -43,7 +43,7 @@ public class AssignExpression {
             while (nestedDecl.getNestedDeclarator() != null) {
                 nestedDecl = nestedDecl.getNestedDeclarator();
             }
-            return nestedDecl.getName();
+            return nestedDecl.getName(); // for int * p = &var; // return p, but not *p;
         }
         return null;
     }

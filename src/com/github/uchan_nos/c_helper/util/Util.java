@@ -88,13 +88,13 @@ public class Util {
     }
 
     /**
-     * コントロールフローグラフの頂点集合をソートした集合を返す.
-     * @param vertices 頂点集合
-     * @return ソート済み頂点集合
+     * 返回控制流图中经过排序的顶点集的集合.
+     * @param vertices 顶点集合
+     * @return 排序的顶点集
      */
     public static Set<CFG.Vertex> sort(Set<CFG.Vertex> vertices) {
         /**
-         * コントロールフローグラフの頂点の比較器.
+         * 控制流图顶点的比较器.
          * @author uchan
          */
         class VertexComparator implements Comparator<CFG.Vertex> {

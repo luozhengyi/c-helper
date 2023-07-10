@@ -72,9 +72,9 @@ public class FunctionCFGCreator {
             cfg = create((IASTLabelStatement)stmt);
         } else if (stmt instanceof IASTGotoStatement) {
             cfg = create((IASTGotoStatement)stmt);
-        } else {
+        } else { // simpleStatement whilch doesn't have branch and loop.
             CFG.Vertex v = new CFG.Vertex(stmt.getRawSignature() + "\\l");
-            v.setASTNode(stmt);
+            v.setASTNode(stmt); // set vertex data.
             cfg = new CFG(v, v);
         }
 
@@ -84,6 +84,10 @@ public class FunctionCFGCreator {
         return cfg;
     }
 
+    /**
+     * compundStatement is equvilent to statment list.
+     * every compoundStatement has one virtual entryVetex and exitVertex, which doesn't have data.
+     */
     private CFG create(IASTCompoundStatement stmt) {
         CFG.Vertex entryVertex = new CFG.Vertex();
         CFG.Vertex exitVertex = new CFG.Vertex();

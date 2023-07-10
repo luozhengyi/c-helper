@@ -3,6 +3,9 @@ package com.github.uchan_nos.c_helper.analysis;
 import org.eclipse.cdt.core.dom.ast.IASTIdExpression;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 
+/**
+ * 赋值表达式中也包含 IASTIdExpression
+ */
 public class DummyAssignExpression extends AssignExpression {
 
     private IASTIdExpression lhs;

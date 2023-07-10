@@ -27,7 +27,7 @@ import com.github.uchan_nos.c_helper.suggest.*;
 
 public class Analyzer {
     public static class RunOption {
-        // 実行したいサジェスタ。すべて実行する場合は null
+        // 要执行的suggester, 如果要执行所有的则为null
         public String suggester = null;
     }
 
@@ -117,25 +117,25 @@ public class Analyzer {
                     new EnumMap<Assumption, String>(Assumption.class);
             assumptionDescriptions.put(
                     Assumption.CHAR_BIT,
-                    "char のサイズを " + analysisEnvironment.CHAR_BIT + " ビットと仮定しています。");
+                    "char size " + analysisEnvironment.CHAR_BIT + " 假设为一个比特。");
             assumptionDescriptions.put(
                     Assumption.SHORT_BIT,
-                    "short int のサイズを " + analysisEnvironment.SHORT_BIT + " ビットと仮定しています。");
+                    "short int size " + analysisEnvironment.SHORT_BIT + " 假设为一个比特。");
             assumptionDescriptions.put(
                     Assumption.INT_BIT,
-                    "int のサイズを " + analysisEnvironment.INT_BIT + " ビットと仮定しています。");
+                    "int size " + analysisEnvironment.INT_BIT + " 假设为一个比特。");
             assumptionDescriptions.put(
                     Assumption.LONG_BIT,
-                    "long int のサイズを " + analysisEnvironment.LONG_BIT + " ビットと仮定しています。");
+                    "long int size " + analysisEnvironment.LONG_BIT + " 假设为一个比特。");
             assumptionDescriptions.put(
                     Assumption.LONG_LONG_BIT,
-                    "long long int のサイズを " + analysisEnvironment.LONG_LONG_BIT + " ビットと仮定しています。");
+                    "long long int size " + analysisEnvironment.LONG_LONG_BIT + " 假设为一个比特。");
             assumptionDescriptions.put(
                     Assumption.POINTER_BIT,
-                    "ポインタ変数のサイズを " + analysisEnvironment.POINTER_BIT + " ビットと仮定しています。");
+                    "pointer variable size " + analysisEnvironment.POINTER_BIT + " 假设为一个比特。");
             assumptionDescriptions.put(
                     Assumption.POINTER_BYTE,
-                    "ポインタ変数のサイズを " + analysisEnvironment.POINTER_BYTE + " バイトと仮定しています。");
+                    "ポインタ変数のサイズを " + analysisEnvironment.POINTER_BYTE + " 假设为一个字节。");
 
             IASTTranslationUnit translationUnit =
                     new Parser(fileInfo, source.get()).parse();

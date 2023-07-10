@@ -79,8 +79,8 @@ public class IntegralValue extends ArithmeticValue {
                     if (thisLimit.bits < newLimit.bits) {
                         newValue = this.value;
                     } else if (this.value.bitLength() > newLimit.bits - 1) {
-                        // this.valueが新しい型で表せない。
-                        // この変換は処理系依存である
+                        // this.value不能用一个新的类型表示
+                        // 这种转换是依赖于处理器的
                         newFlag |= Value.IMPLDEPENDENT;
                         newValue = Util.cutBits(this.value, newLimit.bits);
                     } else {
@@ -107,7 +107,7 @@ public class IntegralValue extends ArithmeticValue {
                     } else if ((this.value.signum() >= 0
                                 && this.value.bitLength() > newLimit.bits)
                             || this.value.signum() < 0) {
-                        // this.valueが新しい型で表せない。
+                        // this.value不能用一个新的类型表示
                         newValue = this.value.mod(newLimit.max.add(BigInteger.ONE));
                     } else {
                         newValue = this.value;
@@ -119,8 +119,8 @@ public class IntegralValue extends ArithmeticValue {
                                 && this.value.bitLength() > newLimit.bits - 1)
                             || (this.value.signum() < 0
                                 && this.value.bitLength() > newLimit.bits - 1)) {
-                        // this.valueが新しい型で表せない。
-                        // この変換は処理系依存である
+                        // this.value不能用一个新的类型来表示
+                        // 这种转换是依赖于处理器的
                         newFlag |= Value.IMPLDEPENDENT;
                         newValue = Util.cutBits(this.value, newLimit.bits);
                     } else {
@@ -135,7 +135,7 @@ public class IntegralValue extends ArithmeticValue {
     }
 
     /**
-     * 汎整数拡張を行った後の値を返す.
+     * 泛整数扩展后的返回值.
      * @return
      */
     private IntegralValue promote() {
@@ -178,7 +178,7 @@ public class IntegralValue extends ArithmeticValue {
             IntegralValue r = ((IntegralValue)rhs).promote();
             IntegerLimits rLimit = IntegerLimits.create(r.type, this.analysisEnvironment);
 
-            // 精度の高い方を取る
+            // 采取准确度最高的那一个
             // TODO: 演算結果の型の決定は規格書を読むべき
             IBasicType resultType = max(l.type, r.type);
             IntegerLimits resultLimit = IntegerLimits.create(resultType, this.analysisEnvironment);

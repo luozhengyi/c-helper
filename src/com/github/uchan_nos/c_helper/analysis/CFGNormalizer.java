@@ -16,7 +16,7 @@ public class CFGNormalizer {
     public static void normalize(CFG cfg) {
         CFGUtil util = new CFGUtil(cfg);
 
-        // どこからも指されておらず、ASTノードを含まないような頂点を削除
+        // 删除未从任何地方指向并且不包含AST节点的顶点(Dead code)
         ArrayList<CFG.Vertex> removeVertices = new ArrayList<CFG.Vertex>();
         for (CFG.Vertex v : cfg.getVertices()) {
             if (v != cfg.entryVertex() && v.getASTNode() == null && cfg.getConnectedVerticesTo(v).size() == 0) {

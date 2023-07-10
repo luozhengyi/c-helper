@@ -3,36 +3,36 @@ package com.github.uchan_nos.c_helper.analysis.values;
 import org.eclipse.cdt.core.dom.ast.IType;
 
 /**
- * C言語プログラムの様々な値を表す.
+ * 代表C语言程序中的各种数值.
  * @author uchan
  */
 public abstract class Value {
     public static final int OVERFLOWED = 1 << 0;
     public static final int UNDEFINED = 1 << 1;
-    public static final int IMPLDEPENDENT = 1 << 2;
+    public static final int IMPLDEPENDENT = 1 << 2; // implement dependent
 
     /**
-     * このValueが表す型を返す.
+     * 返回Value所代表的类型.
      * @return
      */
     public abstract IType getType();
 
     /**
-     * このValueの状態を返す.
-     * @return OVERFLOWED, UNDEFINED, IMPLDEPENDENTのいずれか
+     * 返回Value的状态.
+     * @return OVERFLOWED, UNDEFINED, IMPLDEPENDENT情况之一
      */
     public abstract int getFlag();
 
     /**
-     * 型変換する.
+     * 类型转换.
      * @param newType
      * @return
      */
     public abstract Value castTo(IType newType);
 
     /**
-     * このValueが真値を表す場合はtrueを返す.
-     * @return Valueが非0の値を保持しているならtrue、0の値を保持しているならfalse
+     * 如果这个Value代表一个真值，则返回true.
+     * @return Value持有非0值返回true、0值返回false
      */
     public abstract boolean isTrue();
 }

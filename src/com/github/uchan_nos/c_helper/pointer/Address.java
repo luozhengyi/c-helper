@@ -1,7 +1,7 @@
 package com.github.uchan_nos.c_helper.pointer;
 
 /**
- * ポインタ変数が指すアドレス値を表す基底クラス.
+ * 指针变量指向的地址值的基类.
  */
 public abstract class Address {
 }

@@ -29,9 +29,9 @@ import com.github.uchan_nos.c_helper.analysis.Parser;
 import com.github.uchan_nos.c_helper.util.Util;
 
 public class RDSolver extends GenKillForwardSolver<CFG.Vertex, AssignExpression> {
-    private ArrayList<AssignExpression> assignList; // cfgに含まれる代入文のリスト（DummyAssignExpressionを含む）
-    private Set<IASTIdExpression> idExpressionList; // cfgに含まれるID式のリスト
-    private ArrayList<DummyAssignExpression> dummyAssignList; // cfgに含まれるダミー変数定義のリスト
+    private ArrayList<AssignExpression> assignList; // cfg中的赋值语句列表（包括DummyAssignExpression）
+    private Set<IASTIdExpression> idExpressionList; // cfg中的ID表达式列表
+    private ArrayList<DummyAssignExpression> dummyAssignList; // cfg中虚拟变量定义的列表
 
     public RDSolver(IGraph<CFG.Vertex> cfg, CFG.Vertex entryVertex, IASTTranslationUnit ast) {
         super(cfg, entryVertex);
@@ -63,8 +63,8 @@ public class RDSolver extends GenKillForwardSolver<CFG.Vertex, AssignExpression>
     }
 
     /**
-     * 指定された頂点のgen, kill集合を生成する.
-     * @param v gen, kill集合を生成したい頂点
+     * 为一个给定的顶点生成一个gen, kill集合.
+     * @param v 需要生成gen, kill集合的顶点.
      * @return gen, kill集合
      */
     @Override
@@ -79,7 +79,7 @@ public class RDSolver extends GenKillForwardSolver<CFG.Vertex, AssignExpression>
         return result;
     }
 
-    // 指定されたASTノードのgen, kill集合を生成する.
+    // 为指定的AST节点生成gen、kill集.
     private GenKill<AssignExpression> createGenKill(IASTNode ast) {
         if (ast instanceof IASTExpressionStatement) {
             return createGenKill((IASTExpressionStatement)ast);
@@ -90,7 +90,11 @@ public class RDSolver extends GenKillForwardSolver<CFG.Vertex, AssignExpression>
     }
 
     private GenKill<AssignExpression> createGenKill(IASTExpressionStatement ast) {
-        // 代入に対応したgen, kill
+        /**
+         * 与assign相对应的gen, kill,
+         *  gen即是assign,
+         *  kill即是killedAssigns
+         */
         AssignExpression assign = getAssignExpressionOfNode(ast.getExpression());
         ArrayList<AssignExpression> killedAssigns = null;
 
@@ -112,7 +116,7 @@ public class RDSolver extends GenKillForwardSolver<CFG.Vertex, AssignExpression>
     }
 
     private GenKill<AssignExpression> createGenKill(IASTDeclarationStatement ast) {
-        // 初期化付き変数定義に対応したgen, kill
+        // 与带初始化的变量定义对应的gen, kill
         if (ast.getDeclaration() instanceof IASTSimpleDeclaration) {
             IASTDeclarator[] declarators =
                     ((IASTSimpleDeclaration)ast.getDeclaration()).getDeclarators();
@@ -121,7 +125,7 @@ public class RDSolver extends GenKillForwardSolver<CFG.Vertex, AssignExpression>
             for (int i = 0; i < declarators.length; ++i) {
                 if (declarators[i].getInitializer() != null) {
                     AssignExpression assign = getAssignExpressionOfNode(declarators[i]);
-                    // assignがnullになるのは、初期化なし変数定義の場合
+                    // 如果变量定义未被初始化, assign为null
                     gen.add(assign);
                     IASTName nameToBeKilled = null;
                     if (assign.getLHS() instanceof IASTName) {
@@ -143,9 +147,9 @@ public class RDSolver extends GenKillForwardSolver<CFG.Vertex, AssignExpression>
     }
 
     /**
-     * 指定されたASTノードに対応する変数定義を取得する.
-     * 指定するASTノードは初期化付き変数定義のIASTDeclaratorか
-     * 代入文のIASTBinaryExpressionに対応している.
+     * 获取对应于指定AST节点的变量定义.
+     * 指定的AST节点对应于"初始化的变量定义中的IASTDeclarator"或
+     * "赋值语句中的IASTBinaryExpression".
      * @param ast
      * @return
      */
@@ -159,24 +163,28 @@ public class RDSolver extends GenKillForwardSolver<CFG.Vertex, AssignExpression>
     }
 
     /**
-     * 指定された名前を左辺値として持つ変数定義の一覧を取得する.
-     * @param name 抽出する名前
-     * @return 抽出された変数定義一覧
+     * 获得一个以指定名称为左边值的变量定义列表,以用于计算killed list.
+     * @param name 要提取的名称
+     * @return 提取的变量定义的清单
      */
     private ArrayList<AssignExpression> getAssignExpressionsOfName(IASTName name) {
         ArrayList<AssignExpression> result = new ArrayList<AssignExpression>();
-        IBinding nameBinding = name.resolveBinding();
+        IBinding nameBinding = name.resolveBinding(); // 通过IBinding进行比较
 
         for (int i = 0; i < assignList.size(); ++i) {
-            IASTNode lhs = assignList.get(i).getLHS();
-            if (lhs instanceof IASTName) {
+            IASTNode lhs = assignList.get(i).getLHS(); // 对于 int* p = &b, return p, but not *p;
+            if (lhs instanceof IASTName) { // 变量定义返回IASTName
                 IASTName n = (IASTName)lhs;
                 if (n.resolveBinding().equals(nameBinding)) {
                     result.add(assignList.get(i));
                 }
-            } else if (lhs instanceof IASTIdExpression) {
+            } else if (lhs instanceof IASTIdExpression) { // 变量赋值返回IASTIdExpression
                 IASTIdExpression e = (IASTIdExpression)lhs;
                 if (e.getName().resolveBinding().equals(nameBinding)) {
+                    result.add(assignList.get(i));
+                } else if(e.getName().resolveBinding() instanceof ProblemBinding
+                        && nameBinding instanceof ProblemBinding
+                        && e.getName().toString().equals(name.toString())) { // handle undefined variable
                     result.add(assignList.get(i));
                 }
             }
@@ -219,8 +227,8 @@ public class RDSolver extends GenKillForwardSolver<CFG.Vertex, AssignExpression>
                 if (declaration instanceof IASTSimpleDeclaration) {
                     IASTSimpleDeclaration d = (IASTSimpleDeclaration)declaration;
                     for (IASTDeclarator decl : d.getDeclarators()) {
-                        if (decl.getInitializer() != null) {
-                            // 初期化付き変数宣言
+                        if (decl.getInitializer() != null) { // why we exclude the declaration with initializer??
+                            // 带初始化的变量声明
                             result.add(new AssignExpression(id, decl));
                             id++;
                         }
